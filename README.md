@@ -1,196 +1,388 @@
-Echo-Cart – Agentic AI Assistant for Online Store
-=================================================
+# Echo-Cart – Agentic AI Assistant for Online Stores
 
-A smart AI agent that answers customer questions about an online store by intelligently selecting and chaining tools, with graceful error handling and customer-friendly responses.
+An intelligent AI-powered customer support assistant for e-commerce platforms that answers customer queries by selecting and chaining the appropriate tools. The system combines a rule-based agent with optional Gemini, LangChain, and RAG capabilities to provide accurate, customer-friendly responses with graceful error handling.
 
-OVERVIEW
---------
+---
 
-This project implements an AI agent for an online store that can:
+## Overview
 
-- Answer questions about order status (e.g., "Where is my order?")
-- Provide product details (e.g., "Tell me about this product")
-- Search for products (e.g., "Search for shoes")
-- Find cheaper alternatives (e.g., "Is there a cheaper alternative to the shoes I ordered?")
-- Handle semantic searches using RAG (e.g., "Find something similar to a guitar")
+Echo-Cart helps customers interact with an online store through natural language queries. The assistant can:
 
-The agent uses a rule‑based decision engine as the core, with optional Gemini + LangChain integration for enhanced reasoning and RAG (Retrieval-Augmented Generation) for semantic product search.
+* Track order status
+* Retrieve product details
+* Search products by keyword
+* Recommend cheaper alternatives
+* Perform semantic product discovery using RAG
+* Handle invalid requests gracefully
 
-FEATURES
---------
+The project includes a deterministic rule-based agent as the primary engine, with optional Gemini and LangChain integrations for advanced reasoning and semantic search.
 
-- Tool Selection – decides which tools to call based on the user's question.
-- Tool Chaining – calls multiple tools in the correct order for complex queries.
-- Error Handling – gracefully handles invalid orders/products and empty search results.
-- Customer-Friendly Responses – returns natural language answers, never raw data.
-- Logging – logs all tool calls to agent.log.
-- Web Interface – Streamlit UI for easy interaction.
-- Unit Tests – comprehensive test suite using pytest.
-- Gemini Integration – optional LLM-powered agent with reasoning.
-- RAG – semantic product search using FAISS + Gemini embeddings.
-- LangChain – advanced agent framework with tools, memory, and chains.
-- Fallback – automatically falls back to rule‑based agent if Gemini fails.
+---
 
-TECH STACK
-----------
+## Features
 
-Core: Python 3.12+, pandas, regex
-Data: Kagglehub (auto‑downloads Olist dataset)
-LLM: Google Gemini (google-generativeai)
-Agent Framework: LangChain (create_agent)
-RAG: FAISS + Gemini Embeddings
-Web UI: Streamlit
-Testing: pytest
-Environment: python-dotenv
+### Intelligent Tool Selection
 
-PROJECT STRUCTURE
------------------
+Automatically determines which tool(s) to invoke based on the customer's request.
 
+### Tool Chaining
+
+Supports multi-step workflows by calling tools in the correct sequence.
+
+### Semantic Product Search (RAG)
+
+Uses FAISS and Gemini embeddings to find products based on meaning rather than exact keywords.
+
+### Customer-Friendly Responses
+
+Returns natural language answers instead of raw database records.
+
+### Error Handling
+
+Gracefully handles:
+
+* Invalid order IDs
+* Invalid product IDs
+* Empty search results
+* API failures
+
+### Logging
+
+All tool invocations are recorded in `agent.log`.
+
+### Web Interface
+
+Interactive Streamlit application for testing and demonstration.
+
+### Automated Testing
+
+Comprehensive test suite built with `pytest`.
+
+### Multi-Level Fallback System
+
+1. LangChain + Gemini Agent
+2. Direct Gemini Agent
+3. Rule-Based Agent
+
+Users always receive a response, even if external services fail.
+
+---
+
+## Tech Stack
+
+| Category        | Technologies                       |
+| --------------- | ---------------------------------- |
+| Language        | Python 3.12+                       |
+| Data Processing | pandas, regex                      |
+| Dataset         | Olist Brazilian E-Commerce Dataset |
+| LLM             | Google Gemini                      |
+| Agent Framework | LangChain                          |
+| RAG             | FAISS + Gemini Embeddings          |
+| Web UI          | Streamlit                          |
+| Testing         | pytest                             |
+| Environment     | python-dotenv                      |
+| Data Download   | kagglehub                          |
+
+---
+
+## Project Structure
+
+```text
 Echo-Cart/
-├── data/                                  # CSV files (auto‑downloaded)
+│
+├── data/
 │   ├── olist_orders_dataset.csv
 │   ├── olist_order_items_dataset.csv
 │   ├── olist_products_dataset.csv
 │   ├── product_category_name_translation.csv
-│   ├── custom_orders.csv                  # Optional custom data
+│   ├── custom_orders.csv
 │   ├── custom_order_items.csv
 │   └── custom_products.csv
-├── tests/                                 # Unit tests
+│
+├── tests/
 │   ├── test_agent.py
 │   ├── test_gemini_agent.py
 │   ├── test_langchain_agent.py
 │   └── test_tools.py
-├── tools.py                               # Data loading & core tools
-├── agent.py                               # Rule‑based agent
-├── gemini_agent.py                        # Direct Gemini agent (fallback)
-├── langchain_agent.py                     # LangChain + Gemini + RAG agent
-├── main.py                                # CLI entry point
-├── app.py                                 # Streamlit web interface
-├── logging_config.py                      # Logging setup
-├── check_gemini.py                        # Gemini API connectivity test
-├── check_langchain.py                     # LangChain environment check
-├── requirements.txt                       # Dependencies
-├── .env                                   # API keys (not committed)
-├── README.md                              # This file
-└── design_document.md                     # Design decisions (1‑2 pages)
+│
+├── tools.py
+├── agent.py
+├── gemini_agent.py
+├── langchain_agent.py
+├── app.py
+├── main.py
+├── logging_config.py
+├── check_gemini.py
+├── check_langchain.py
+├── requirements.txt
+├── .env
+├── README.md
+└── design_document.md
+```
 
-QUICK START
------------
+---
 
-1. Clone the repository:
-   git clone https://github.com/yourusername/Echo-Cart.git
-   cd Echo-Cart
+## Installation
 
-2. Create a virtual environment:
-   python -m venv venv
-   source venv/bin/activate          # macOS/Linux
-   # or
-   venv\Scripts\activate              # Windows
+### 1. Clone the Repository
 
-3. Install dependencies:
-   pip install -r requirements.txt
+```bash
+git clone https://github.com/yourusername/Echo-Cart.git
+cd Echo-Cart
+```
 
-4. Set up environment variables:
-   Create a .env file with:
-   GOOGLE_API_KEY=your-gemini-api-key
-   Get a key from: https://makersuite.google.com/app/apikey
+### 2. Create a Virtual Environment
 
-5. Run the agent:
-   CLI: python main.py
-   Web UI: streamlit run app.py
+#### macOS / Linux
 
-6. Run tests:
-   pytest tests/ -v
+```bash
+python -m venv venv
+source venv/bin/activate
+```
 
-7. Check Gemini connectivity:
-   python check_gemini.py
+#### Windows
 
-SAMPLE INPUTS & OUTPUTS
------------------------
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
 
-User Question: What is the status of order 47770eb9...?
-Agent Response: Your order 47770eb9... is currently delivered.
+### 3. Install Dependencies
 
-User Question: Tell me about product 1e9e8ef0...
-Agent Response: Product 1e9e8ef0... is a 'perfumery'. It has 1.0 photo(s) and weighs 225.0g.
+```bash
+pip install -r requirements.txt
+```
 
-User Question: Search for furniture
-Agent Response: I found 5 products: furniture_decor (ID: ...), ... Would you like details on any?
+### 4. Configure Environment Variables
 
-User Question: Find me a cheaper alternative to the shoes in order ORD-1002.
-Agent Response: I found some alternatives: fashion_shoes (ID: ...), ... Would you like more details on any?
+Create a `.env` file in the project root:
 
-User Question: category musical_instruments
-Agent Response: I found these products in category 'musical_instruments': ...
+```env
+GOOGLE_API_KEY=your_gemini_api_key
+```
 
-User Question: Hello
-Agent Response: I'm not sure how to help. You can ask about order status, product details, or search for products.
+Get your API key from:
 
-User Question: Invalid order
-Agent Response: Sorry, I couldn't find order ORD-9999. Please verify the ID and try again.
+https://makersuite.google.com/app/apikey
 
-User Question: Empty search
-Agent Response: I couldn't find any products matching 'nonexistentproduct'. Please try a different keyword.
+---
 
-DESIGN DECISIONS
-----------------
+## Running the Project
 
-Rule‑Based Agent:
-- Uses regex and keyword matching for intent detection.
-- Fast, deterministic, and works offline – no API calls.
-- Fully meets all mandatory assignment requirements.
+### Command-Line Interface
 
-LangChain + Gemini + RAG (Bonus):
-- Uses LangChain's create_agent (new API for LangChain 1.x).
-- Gemini provides natural language reasoning and tool selection.
-- RAG uses FAISS + Gemini embeddings for semantic product search.
-- Lazy initialisation – the model is loaded only when needed.
+```bash
+python main.py
+```
 
-Fallback System:
-- If LangChain agent fails (403, 404, etc.), it falls back to the direct Gemini agent.
-- If the direct Gemini agent fails, it falls back to the rule‑based agent.
-- The user always receives an answer.
+### Streamlit Web Application
 
-Error Handling:
-- Invalid order/product IDs → "Sorry, I couldn't find..."
-- Empty search results → "I couldn't find any products matching..."
-- No fabricated data – only real dataset results.
+```bash
+streamlit run app.py
+```
 
-BONUS FEATURES
---------------
-- LLM Integration: Gemini + LangChain (both direct and agent framework)
-- RAG: FAISS + Gemini embeddings
-- Logging: All tool calls logged to agent.log
-- Web Interface: Streamlit (app.py)
-- Unit Tests: pytest tests/ – 23 passing tests
+---
 
-RESOURCES
----------
-- Dataset: Olist Brazilian E‑Commerce Dataset – https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
-- Google Gemini API: https://makersuite.google.com/app/apikey
-- Gemini API Documentation: https://ai.google.dev/gemini-api/docs
-- Google Generative AI Python SDK: https://github.com/google-gemini/generative-ai-python
-- LangChain Documentation: https://python.langchain.com/docs/
-- LangChain Google GenAI Integration: https://python.langchain.com/docs/integrations/chat/google_generativeai
-- LangChain GitHub: https://github.com/langchain-ai/langchain
-- FAISS GitHub: https://github.com/facebookresearch/faiss
-- FAISS Documentation: https://faiss.ai/
-- Streamlit Documentation: https://docs.streamlit.io/
-- pytest Documentation: https://docs.pytest.org/
-- pandas: https://pandas.pydata.org/
-- python-dotenv: https://github.com/theskumar/python-dotenv
-- kagglehub: https://github.com/Kaggle/kagglehub
+## Running Tests
 
-CONTRIBUTING
-------------
-This is a student assignment – contributions are not required. Feel free to fork and experiment.
+Execute the complete test suite:
 
-LICENSE
--------
-MIT License – see LICENSE for details.
+```bash
+pytest tests/ -v
+```
 
-CONTACT
--------
-For any questions, reach out via GitHub Issues.
+---
 
-Built with ❤️ for the Agentic AI Assignment. 🚀
+## Verify Gemini Connectivity
+
+```bash
+python check_gemini.py
+```
+
+---
+
+## Example Queries
+
+### Order Status
+
+**User**
+
+```text
+What is the status of order 47770eb9...?
+```
+
+**Response**
+
+```text
+Your order 47770eb9... is currently delivered.
+```
+
+---
+
+### Product Details
+
+**User**
+
+```text
+Tell me about product 1e9e8ef0...
+```
+
+**Response**
+
+```text
+Product 1e9e8ef0... belongs to the 'perfumery' category,
+contains 1 image, and weighs 225g.
+```
+
+---
+
+### Product Search
+
+**User**
+
+```text
+Search for furniture
+```
+
+**Response**
+
+```text
+I found 5 matching products in the furniture category.
+Would you like details on any of them?
+```
+
+---
+
+### Cheaper Alternatives
+
+**User**
+
+```text
+Find a cheaper alternative to the shoes in order ORD-1002.
+```
+
+**Response**
+
+```text
+I found several lower-priced alternatives.
+Would you like more details on any of them?
+```
+
+---
+
+### Semantic Search (RAG)
+
+**User**
+
+```text
+Find something similar to a guitar.
+```
+
+**Response**
+
+```text
+I found several products related to musical instruments
+that may match your interests.
+```
+
+---
+
+## Architecture
+
+### Rule-Based Agent
+
+* Regex and keyword-based intent detection
+* Deterministic behavior
+* Fast execution
+* No API dependency
+* Works offline
+
+### Gemini Integration
+
+* Natural language understanding
+* Dynamic reasoning
+* Improved tool selection
+
+### LangChain Agent
+
+* Tool orchestration
+* Agent memory
+* Structured workflows
+* Advanced reasoning chains
+
+### RAG Pipeline
+
+1. Product data is embedded using Gemini Embeddings.
+2. Embeddings are stored in FAISS.
+3. User queries are converted into embeddings.
+4. Similar products are retrieved semantically.
+
+---
+
+## Error Handling
+
+| Scenario           | Response                                     |
+| ------------------ | -------------------------------------------- |
+| Invalid Order ID   | "Sorry, I couldn't find that order."         |
+| Invalid Product ID | "Sorry, I couldn't find that product."       |
+| No Search Results  | "I couldn't find any matching products."     |
+| Gemini Failure     | Fallback to Gemini Agent or Rule-Based Agent |
+| LangChain Failure  | Automatic fallback                           |
+
+The system never fabricates information and only returns results found in the dataset.
+
+---
+
+## Bonus Features
+
+* Gemini LLM Integration
+* LangChain Agent Framework
+* RAG-based Semantic Search
+* Streamlit Web Interface
+* Tool Call Logging
+* Automated Unit Tests
+* Multi-Level Fallback System
+
+---
+
+## Dataset
+
+This project uses the **Olist Brazilian E-Commerce Dataset**, which contains real-world e-commerce transactions, products, and order information.
+
+Dataset:
+https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
+
+---
+
+## Future Improvements
+
+* Multi-language customer support
+* Order modification and cancellation workflows
+* Personalized product recommendations
+* Conversation memory
+* Real-time inventory integration
+* Deployment using Docker and cloud platforms
+
+---
+
+## Contributing
+
+This project was developed as part of an Agentic AI assignment. Contributions are not required, but feel free to fork the repository and experiment with new features.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+See the `LICENSE` file for details.
+
+---
+
+## Contact
+
+For questions, suggestions, or bug reports, please open an issue on GitHub.
+
+---
+
+Built with ❤️ using Python, Gemini, LangChain, FAISS, and Streamlit.
