@@ -1,0 +1,26 @@
+order_id,customer_id,order_status,order_purchase_timestamp
+ORD-1001,cust_001,delivered,2023-01-10 09:15:00
+ORD-1002,cust_002,delivered,2023-01-15 14:30:00
+ORD-1003,cust_003,shipped,2023-01-20 11:45:00
+ORD-1004,cust_004,delivered,2023-02-01 08:00:00
+ORD-1005,cust_005,canceled,2023-02-05 16:20:00
+ORD-1006,cust_006,delivered,2023-02-10 10:10:00
+ORD-1007,cust_007,invoiced,2023-02-15 13:35:00
+ORD-1008,cust_008,delivered,2023-02-20 09:50:00
+ORD-1009,cust_009,shipped,2023-03-01 12:25:00
+ORD-1010,cust_010,delivered,2023-03-05 15:40:00
+ORD-1011,cust_011,delivered,2023-03-10 08:55:00
+ORD-1012,cust_012,canceled,2023-03-15 17:05:00
+ORD-1013,cust_013,delivered,2023-03-20 11:15:00
+ORD-1014,cust_014,delivered,2023-04-01 09:30:00
+ORD-1015,cust_015,shipped,2023-04-05 14:45:00
+ORD-1016,cust_016,delivered,2023-04-10 10:00:00
+ORD-1017,cust_017,delivered,2023-04-15 13:10:00
+ORD-1018,cust_018,invoiced,2023-04-20 16:25:00
+ORD-1019,cust_019,delivered,2023-05-01 08:40:00
+ORD-1020,cust_020,delivered,2023-05-05 12:55:00
+ORD-1021,cust_021,shipped,2023-05-10 09:05:00
+ORD-1022,cust_022,delivered,2023-05-15 14:20:00
+ORD-1023,cust_023,delivered,2023-05-20 11:35:00
+ORD-1024,cust_024,canceled,2023-06-01 10:50:00
+ORD-1025,cust_025,delivered,2023-06-05 15:15:00
