@@ -116,8 +116,6 @@ Echo-Cart/
 ├── app.py
 ├── main.py
 ├── logging_config.py
-├── check_gemini.py
-├── check_langchain.py
 ├── requirements.txt
 ├── .env
 └── README.md
