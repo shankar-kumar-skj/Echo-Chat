@@ -100,6 +100,10 @@ Echo-Cart/
 │   └── custom_products.csv
 │
 ├── tests/
+│   ├── __init__.py
+│   ├── check_imports.py
+│   ├── check_langchain.py
+│   ├── conftest.py
 │   ├── test_agent.py
 │   ├── test_gemini_agent.py
 │   ├── test_langchain_agent.py
@@ -116,8 +120,7 @@ Echo-Cart/
 ├── check_langchain.py
 ├── requirements.txt
 ├── .env
-├── README.md
-└── design_document.md
+└── README.md
 ```
 
 ---
