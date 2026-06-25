@@ -208,25 +208,6 @@ with st.sidebar:
 
 
 # ----------------------------
-# Main Chat – Latest Conversation Pair
-# ----------------------------
-st.subheader("💬 Latest Conversation")
-
-latest_pair = get_latest_chat_pair()
-if latest_pair:
-    for role, content in latest_pair:
-        if role == "user":
-            st.markdown(f"### 🧑 You\n{content}")
-        else:
-            st.markdown(f"### 🤖 Assistant\n{content}")
-else:
-    st.info("No messages yet.")
-
-
-st.divider()
-
-
-# ----------------------------
 # Input Form (with processing flag)
 # ----------------------------
 if "processing" not in st.session_state:
@@ -267,3 +248,20 @@ if submit_button and user_question and not st.session_state.processing:
 
     st.session_state.processing = False
     st.rerun()
+
+st.divider()
+
+# ----------------------------
+# Main Chat – Latest Conversation Pair
+# ----------------------------
+st.subheader("💬 Latest Conversation")
+
+latest_pair = get_latest_chat_pair()
+if latest_pair:
+    for role, content in latest_pair:
+        if role == "user":
+            st.markdown(f"### 🧑 You\n{content}")
+        else:
+            st.markdown(f"### 🤖 Assistant\n{content}")
+else:
+    st.info("No messages yet.")
