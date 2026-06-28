@@ -20,7 +20,7 @@ API_KEY = os.getenv("GOOGLE_API_KEY")
 if not API_KEY:
     raise ValueError("GOOGLE_API_KEY not set in .env")
 
-# ---- Tools (unchanged) ----
+# ---- Tools ----
 @tool(description="Fetch order status and item count.")
 def get_order(order_id: str) -> str:
     order = real_get_order(order_id)
@@ -154,5 +154,4 @@ def run_agent_gemini(question: str) -> str:
                 return str(last_msg)
         return str(result)
     except Exception as e:
-        # Re-raise so that main.py can catch and fallback
         raise

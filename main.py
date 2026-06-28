@@ -2,6 +2,7 @@
 import os
 from agent import run_agent
 from logging_config import setup_logging
+from advanced_features import process_with_advanced_features
 
 run_agent_gemini = None
 AGENT_TYPE = "RuleBased"
@@ -36,13 +37,12 @@ if __name__ == "__main__":
         try:
             if USE_GEMINI and AGENT_TYPE != "RuleBased" and run_agent_gemini:
                 try:
-                    response = run_agent_gemini(user_input)
+                    response = process_with_advanced_features(user_input, agent_func=run_agent_gemini)
                 except Exception as gemini_error:
-                    # If Gemini fails (permission, model not found, etc.), fallback to rule-based
                     print(f"⚠️ Gemini agent error: {gemini_error}. Falling back to rule‑based agent for this question.")
-                    response = run_agent(user_input)
+                    response = process_with_advanced_features(user_input, agent_func=run_agent)
             else:
-                response = run_agent(user_input)
+                response = process_with_advanced_features(user_input, agent_func=run_agent)
             print(response)
         except Exception as e:
             print(f"Error: {e}")

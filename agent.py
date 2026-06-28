@@ -80,6 +80,15 @@ def run_agent(question: str) -> str:
                 return f"Order {stripped} has status **{status}** and contains {len(order.get('items', []))} item(s)."
             return f"I couldn't find any product or order with ID '{stripped}'. Please verify."
 
+        # --- Compare branch (lazy import) ---
+        if "compare" in question_lower and "order" in question_lower:
+            order_id = extract_order_id(question)
+            if order_id:
+                from advanced_features import compare_order_products
+                return compare_order_products(order_id)
+            else:
+                return "I couldn't find an order ID in your question. Please specify the order ID, e.g., 'compare products in ORD-1002'."
+
         order_id = extract_order_id(question)
         if order_id:
             if re.match(r'ORD-\d+', order_id, re.IGNORECASE):
@@ -190,7 +199,7 @@ def run_agent(question: str) -> str:
 
         return ("I'm not sure how to help. You can ask about order status, product details, "
                 "or search for products. For example: 'What is the status of order 47770eb9...?' "
-                "or 'Tell me about product 1e9e8ef0...'.")
+                "or 'Tell me about product 1e9e8ef0...' or 'Compare products in ORD-1002'.")
 
     except Exception as e:
         logger.error(f"Unhandled error in run_agent: {e}", exc_info=True)

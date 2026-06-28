@@ -6,11 +6,82 @@ import os
 import shutil
 from agent import run_agent
 from logging_config import setup_logging
+from advanced_features import process_with_advanced_features
 
 setup_logging()
 
 DB_NAME = "chat_history.db"
 
+# ----------------------------
+# Custom CSS for left-right chat bubbles
+# ----------------------------
+st.markdown("""
+<style>
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        margin-bottom: 0.3rem;
+    }
+    .user-message {
+        align-self: flex-end;
+        background-color: #007bff;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 1rem 1rem 0 1rem;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 0.95rem;
+    }
+    .assistant-message {
+        align-self: flex-start;
+        background-color: #f1f1f1;
+        color: #333;
+        padding: 0.5rem 1rem;
+        border-radius: 1rem 1rem 1rem 0;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 0.95rem;
+    }
+    .timestamp {
+        font-size: 0.65rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+        margin-top: 0.1rem;
+    }
+    .chat-container:hover .timestamp {
+        opacity: 0.6;
+    }
+    .user-message .timestamp {
+        color: rgba(255,255,255,0.7);
+        text-align: right;
+    }
+    .assistant-message .timestamp {
+        color: rgba(0,0,0,0.5);
+        text-align: left;
+    }
+    .stButton > button {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+        border-radius: 0.5rem;
+        padding: 0.25rem 1rem;
+        border: none;
+    }
+    .stButton > button:hover {
+        background-color: #0056b3;
+        color: white;
+    }
+    .stTextInput > label {
+        display: none;
+    }
+    .sidebar-pair {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ----------------------------
 # Database Functions
@@ -29,7 +100,6 @@ def is_valid_sqlite_db(db_path):
     finally:
         if conn:
             conn.close()
-
 
 def init_db():
     if not is_valid_sqlite_db(DB_NAME):
@@ -71,7 +141,6 @@ def init_db():
         conn.commit()
         conn.close()
 
-
 def save_message(role, content):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
@@ -79,26 +148,13 @@ def save_message(role, content):
     conn.commit()
     conn.close()
 
-
 def get_all_messages_chrono():
-    """Return messages in chronological order (oldest first)."""
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     c.execute("SELECT timestamp, role, content FROM messages ORDER BY id ASC")
     rows = c.fetchall()
     conn.close()
     return rows
-
-
-def get_all_messages_desc():
-    """Return messages in reverse chronological order (newest first)."""
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT timestamp, role, content FROM messages ORDER BY id DESC")
-    rows = c.fetchall()
-    conn.close()
-    return rows
-
 
 def get_last_assistant_message():
     conn = sqlite3.connect(DB_NAME)
@@ -108,17 +164,6 @@ def get_last_assistant_message():
     conn.close()
     return row[0] if row else None
 
-
-def get_latest_chat_pair():
-    """Return the most recent user + assistant messages as a list."""
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT role, content FROM messages ORDER BY id DESC LIMIT 2")
-    rows = c.fetchall()
-    conn.close()
-    return list(reversed(rows))
-
-
 def clear_all_messages():
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
@@ -126,142 +171,123 @@ def clear_all_messages():
     conn.commit()
     conn.close()
 
-
-# Initialize database
 init_db()
 
-
 # ----------------------------
-# Streamlit UI
+# Streamlit App
 # ----------------------------
 st.set_page_config(page_title="Online Store AI Assistant", layout="wide")
 
 st.title("🛒 Online Store AI Assistant")
 st.write("Ask me about orders, products, or alternatives.")
 
-
-# ----------------------------
-# Sidebar – Full Chat History (grouped by exchange, latest first)
-# ----------------------------
+# Sidebar – Full Chat History (grouped by pairs, latest first)
 with st.sidebar:
     st.header("📜 Chat History")
-
     if st.button("🗑 Clear All Chats"):
         clear_all_messages()
-        if "last_response" in st.session_state:
-            del st.session_state["last_response"]
         st.rerun()
 
-    # Get messages in chronological order
-    chrono_msgs = get_all_messages_chrono()
-
-    if chrono_msgs:
-        # Group into exchanges: (user_message, assistant_message)
-        # We assume messages alternate: user, assistant, user, assistant, ...
+    chrono = get_all_messages_chrono()
+    if chrono:
         pairs = []
-        for i in range(0, len(chrono_msgs), 2):
-            user_msg = chrono_msgs[i]
-            assistant_msg = chrono_msgs[i + 1] if i + 1 < len(chrono_msgs) else None
-            pairs.append((user_msg, assistant_msg))
-
-        # Display pairs in reverse order (latest exchange first)
-        for user_msg, assistant_msg in reversed(pairs):
-            # Display user message
-            if user_msg:
-                ts, role, content = user_msg
-                try:
-                    time_str = datetime.datetime.strptime(ts, "%Y-%m-%d %H:%M:%S").strftime("%H:%M")
-                except:
-                    time_str = ""
-                st.markdown(
-                    f"""
-**You ({time_str})**  
-
-{content}
-
-"""
-                )
-
-            # Display assistant message
-            if assistant_msg:
-                ts, role, content = assistant_msg
-                try:
-                    time_str = datetime.datetime.strptime(ts, "%Y-%m-%d %H:%M:%S").strftime("%H:%M")
-                except:
-                    time_str = ""
-                st.markdown(
-                    f"""
-**Assistant ({time_str})**  
-
-{content}
-
----
-"""
-                )
+        i = 0
+        while i < len(chrono):
+            user_row = chrono[i]
+            if user_row[1] == "user":
+                assistant_row = chrono[i+1] if i+1 < len(chrono) and chrono[i+1][1] == "assistant" else None
+                pairs.append((user_row, assistant_row))
+                i += 2 if assistant_row else 1
             else:
-                # If no assistant message (should not happen), add a separator
-                st.markdown("---")
-
-        st.caption(f"Total messages: {len(chrono_msgs)}")
+                i += 1
+        if not pairs:
+            st.info("No complete conversations yet.")
+        else:
+            for user_msg, assistant_msg in reversed(pairs):
+                if user_msg:
+                    ts, role, content = user_msg
+                    try:
+                        time_str = datetime.datetime.strptime(ts, "%Y-%m-%d %H:%M:%S").strftime("%H:%M")
+                    except:
+                        time_str = ""
+                    st.markdown(f"**You ({time_str})**  \n\n{content}\n")
+                if assistant_msg:
+                    ts, role, content = assistant_msg
+                    try:
+                        time_str = datetime.datetime.strptime(ts, "%Y-%m-%d %H:%M:%S").strftime("%H:%M")
+                    except:
+                        time_str = ""
+                    st.markdown(f"**Assistant ({time_str})**  \n\n{content}\n---")
+            st.caption(f"Total messages: {len(chrono)}")
     else:
         st.info("No conversations yet.")
 
+# Main Chat Area – Display all messages in left/right bubbles
+st.subheader("💬 Conversation")
 
-# ----------------------------
-# Input Form (with processing flag)
-# ----------------------------
+all_msgs = get_all_messages_chrono()
+if all_msgs:
+    for ts, role, content in all_msgs:
+        try:
+            time_str = datetime.datetime.strptime(ts, "%Y-%m-%d %H:%M:%S").strftime("%H:%M")
+        except:
+            time_str = ""
+        if role == "user":
+            st.markdown(
+                f"""
+                <div class="chat-container">
+                    <div class="user-message">
+                        {content}
+                        <div class="timestamp">{time_str}</div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                f"""
+                <div class="chat-container">
+                    <div class="assistant-message">
+                        {content}
+                        <div class="timestamp">{time_str}</div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+else:
+    st.info("No messages yet. Start a conversation below.")
+
+st.divider()
+
+# Input Form with ">" button
 if "processing" not in st.session_state:
     st.session_state.processing = False
 
 with st.form(key="chat_form", clear_on_submit=True):
-    user_question = st.text_input(
-        "Your question:",
-        placeholder="Ask Question eg. track my orderid",
-        disabled=st.session_state.processing
-    )
-    submit_button = st.form_submit_button(
-        "Ask",
-        disabled=st.session_state.processing
-    )
+    col1, col2 = st.columns([5, 1])
+    with col1:
+        user_question = st.text_input(
+            "Your question:",
+            placeholder="e.g., track order ORD-1002, compare products in ORD-1002, search for shoes",
+            disabled=st.session_state.processing,
+            label_visibility="collapsed"
+        )
+    with col2:
+        submit_button = st.form_submit_button(">", disabled=st.session_state.processing)
 
-
-# ----------------------------
-# Process the user question
-# ----------------------------
 if submit_button and user_question and not st.session_state.processing:
     st.session_state.processing = True
 
-    # Save user message
     save_message("user", user_question)
 
-    # Get assistant response
     with st.spinner("Thinking..."):
-        response = run_agent(user_question)
+        response = process_with_advanced_features(user_question, agent_func=run_agent)
 
-    # Avoid duplicates
     last_assistant = get_last_assistant_message()
     if response != last_assistant:
         save_message("assistant", response)
 
-    # Store latest response for immediate display (optional)
-    st.session_state.last_response = response
-
     st.session_state.processing = False
     st.rerun()
-
-st.divider()
-
-# ----------------------------
-# Main Chat – Latest Conversation Pair
-# ----------------------------
-st.subheader("💬 Latest Conversation")
-
-latest_pair = get_latest_chat_pair()
-if latest_pair:
-    for role, content in latest_pair:
-        if role == "user":
-            st.markdown(f"### 🧑 You\n{content}")
-        else:
-            st.markdown(f"### 🤖 Assistant\n{content}")
-else:
-    st.info("No messages yet.")
